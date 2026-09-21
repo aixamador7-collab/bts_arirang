@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ARMY, WHAT IS YOUR LOVE SONG?</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #000; color: #fff; overflow-x: hidden; }
+
+  /* ESTRELLAS */
+  .stars-layer { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
+  .star { position: absolute; top: -20px; color: #c0c0c0; text-shadow: 0 0 6px rgba(255,255,255,.6); animation: fall linear infinite; opacity: 0; }
+  .star.red { color: #e63946; text-shadow: 0 0 6px rgba(230,57,70,.7); }
+  @keyframes fall {
+    0% { transform: translateY(-20px) rotate(0); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* PORTADA */
+  .cover { position: relative; width: 100%; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; overflow: hidden; }
+  .cover img.bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: brightness(.85); }
+  .cover .red-overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(200,16,46,.55), rgba(200,16,46,.15) 45%, rgba(0,0,0,.7)); }
+  .cover h1 { position: relative; z-index: 3; font-size: clamp(1.8rem, 5vw, 4rem); letter-spacing: 3px; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,.6); padding: 0 20px; line-height: 1.2; }
+  .cover .sub { position: relative; z-index: 3; margin-top: 15px; color: #ffd7dd; font-size: 1.1rem; letter-spacing: 2px; }
+  .enter-btn { position: relative; z-index: 3; margin-top: 35px; padding: 16px 50px; font-size: 1.2rem; letter-spacing: 4px; color: #fff; background: rgba(200,16,46,.85); border: 2px solid #fff; border-radius: 50px; cursor: pointer; transition: all .3s; text-transform: uppercase; }
+  .enter-btn:hover { background: #fff; color: #c8102e; box-shadow: 0 0 25px rgba(255,255,255,.5); }
+
+  /* CONTENIDO */
+  .main-content { position: relative; z-index: 10; background: linear-gradient(180deg, #c8102e 0%, #7a0c1c 35%, #2b050c 70%, #000 100%); border: 4px solid #fff; border-radius: 8px; margin: 20px; min-height: 100vh; padding: 40px 20px; overflow: hidden; }
+  .main-content::before { content: ''; position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 80vw; height: 80vh; background: url('bts-logo.png') center/contain no-repeat; opacity: .06; pointer-events: none; z-index: 0; }
+  section { position: relative; z-index: 1; margin-bottom: 60px; }
+  .section-title { text-align: center; font-size: clamp(1.6rem, 4vw, 2.6rem); letter-spacing: 3px; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,.4); margin-bottom: 30px; text-transform: uppercase; }
+
+  /* GENERADOR */
+  .generator { text-align: center; }
+  .gen-box { max-width: 520px; margin: 0 auto; padding: 30px; background: rgba(0,0,0,.5); border: 2px solid #fff; border-radius: 12px; }
+  .gen-label { font-size: 1.1rem; letter-spacing: 2px; color: #ffd7dd; }
+  .gen-song { font-size: 2rem; margin: 20px 0 10px; color: #fff; text-shadow: 0 0 15px rgba(255,255,255,.5); }
+  .gen-album { font-size: 1rem; color: #ffb3ba; margin-bottom: 15px; }
+  .gen-cover { width: 220px; height: 220px; object-fit: cover; border: 3px solid #fff; border-radius: 8px; margin: 15px auto; display: block; box-shadow: 0 0 20px rgba(255,255,255,.3); }
+  .spotify-btn { display: inline-block; padding: 14px 35px; margin-top: 15px; background: #1DB954; color: #fff; font-weight: bold; letter-spacing: 2px; text-decoration: none; border-radius: 50px; transition: all .3s; }
+  .spotify-btn:hover { transform: scale(1.05); box-shadow: 0 0 20px rgba(29,185,84,.6); }
+  .new-song-btn { margin-top: 20px; padding: 12px 30px; background: transparent; color: #fff; border: 2px solid #fff; border-radius: 50px; cursor: pointer; letter-spacing: 2px; transition: all .3s; }
+  .new-song-btn:hover { background: #fff; color: #c8102e; }
+
+  /* MIEMBROS */
+  .members-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto; }
+  .member-card { cursor: pointer; text-align: center; transition: transform .3s; }
+  .member-card:hover { transform: scale(1.05); }
+  .member-card img { width: 100%; aspect-ratio: 1/1; object-fit: cover; object-position: center top; border: 3px solid #fff; border-radius: 50%; box-shadow: 0 0 15px rgba(255,255,255,.3); }
+  .member-card p { margin-top: 10px; font-size: 1.1rem; letter-spacing: 2px; color: #fff; }
+  .member-panel { display: none; max-width: 700px; margin: 30px auto; padding: 25px; background: rgba(0,0,0,.6); border: 2px solid #fff; border-radius: 12px; }
+  .member-panel.active { display: block; }
+  .member-panel h3 { text-align: center; font-size: 1.8rem; color: #fff; margin-bottom: 20px; text-shadow: 0 0 12px rgba(255,255,255,.5); }
+  .solo-album { margin-bottom: 20px; padding: 15px; border: 1px solid rgba(255,255,255,.3); border-radius: 8px; }
+  .solo-album h4 { color: #ffd7dd; margin-bottom: 8px; letter-spacing: 1px; }
+  .solo-album ul { list-style: none; }
+  .solo-album li { margin: 4px 0; padding-left: 15px; position: relative; }
+  .solo-album li::before { content: '♪'; position: absolute; left: 0; color: #ffd7dd; }
+  .solo-album a { display: inline-block; margin-top: 8px; padding: 8px 20px; background: #1DB954; color: #fff; text-decoration: none; border-radius: 50px; font-size: .9rem; }
+
+  /* FINAL */
+  .finale { text-align: center; }
+  .finale img { width: 100%; max-width: 900px; height: auto; border: 4px solid #fff; border-radius: 10px; box-shadow: 0 0 30px rgba(255,255,255,.3); }
+  .finale .quote { margin: 30px auto; max-width: 700px; font-size: clamp(1.2rem, 3vw, 1.8rem); font-style: italic; color: #fff; text-shadow: 0 0 20px rgba(255,255,255,.6); line-height: 1.6; }
+  .finale .attribution { margin-top: 15px; font-size: 1.2rem; letter-spacing: 4px; color: #ffd7dd; }
+</style>
+</head>
+<body>
+
+<div class="stars-layer" id="stars"></div>
+
+<!-- PORTADA -->
+<div class="cover" id="cover">
+  <img class="bg" src="bts-serious.jpg" alt="BTS">
+  <div class="red-overlay"></div>
+  <h1>ARMY, WHAT IS YOUR LOVE SONG?</h1>
+  <div class="sub">✦ A BTS FAN PAGE ✦</div>
+  <button class="enter-btn" onclick="enterSite()">ENTER</button>
+</div>
+
+<!-- CONTENIDO -->
+<div class="main-content" id="main">
+  <section class="generator" id="generator">
+    <h2 class="section-title">Your Love Song</h2>
+    <div class="gen-box">
+      <div class="gen-label">YOUR LOVE SONG IS...</div>
+      <div class="gen-song" id="songName">—</div>
+      <div class="gen-album" id="songAlbum">—</div>
+      <img class="gen-cover" id="songCover" src="" alt="Album cover" style="display:none;">
+      <a class="spotify-btn" id="songLink" href="#" target="_blank" style="display:none;">LISTEN ON SPOTIFY</a>
+      <br>
+      <button class="new-song-btn" onclick="newSong()">🎲 New Song</button>
+    </div>
+  </section>
+
+  <section id="members">
+    <h2 class="section-title">Members</h2>
+    <div class="members-grid" id="membersGrid"></div>
+    <div class="member-panel" id="memberPanel"></div>
+  </section>
+
+  <section class="finale" id="finale">
+    <img src="bts-laughing.jpg" alt="BTS">
+    <div class="quote">"Incluso si el invierno llega otra vez, incluso si estoy bloqueado, seguiré caminando. Somos por siempre a prueba de balas."</div>
+    <div class="attribution">— BTS</div>
+  </section>
+</div>
+
+<script>
+/* ESTRELLAS */
+(function createStars(){
+  const layer = document.getElementById('stars');
+  const symbols = ['✦','✧','★','✩','✫'];
+  for(let i=0;i<45;i++){
+    const s = document.createElement('span');
+    s.className = 'star' + (i%3===0?' red':'');
+    s.textContent = symbols[Math.floor(Math.random()*symbols.length)];
+    s.style.left = Math.random()*100 + '%';
+    s.style.fontSize = (Math.random()*18+8) + 'px';
+    s.style.animationDuration = (Math.random()*8+5) + 's';
+    s.style.animationDelay = (Math.random()*8) + 's';
+    layer.appendChild(s);
+  }
+})();
+
+/* CANCIONES EN GRUPO */
+const albums = [
+  { name:'2 Cool 4 Skool', year:2013, link:'https://open.spotify.com/album/6egaEe9JaULuUCkihSnYlH', cover:'cover-2cool.jpg', songs:['Intro: 2 Cool 4 Skool','We Are Bulletproof Pt.2','Skit: Circle Room Talk','No More Dream','Interlude','Like','Outro: Circle Room Cypher'] },
+  { name:'O!RUL8,2?', year:2013, link:'https://open.spotify.com/album/6rWmdSJIaGTVtdMJQ35Lvf', cover:'cover-orul.jpg', songs:['Intro: O!RUL8,2?','N.O','We On','Skit: R U Happy Now?','If I Ruled the World','Coffee','BTS Cypher Pt.1','Attack on Bangtan','Satoori Rap','Outro: Luv in Skool'] },
+  { name:'Skool Luv Affair', year:2014, link:'https://open.spotify.com/album/5r35iS0uSSoQBKzQj0IeI3', cover:'cover-skool.jpg', songs:['Intro: Skool Luv Affair','Boy in Luv','Skit: Soulmate','Where You From','Just One Day','Tomorrow','BTS Cypher Pt.2: Triptych','Spine Breaker','Jump','Outro: Propose'] },
+  { name:'Dark & Wild', year:2014, link:'https://open.spotify.com/album/35voVqYGkotyJ945O9egDY', cover:'cover-dark.jpg', songs:['Intro: What Am I to You','Danger','War of Hormone','Hip Hop Phile','Let Me Know','Rain','BTS Cypher Pt.3: Killer','Interlude: What Are You Doing Now','Could You Turn Off Your Cell Phone','Embarrassed','24/7=Heaven','Look Here','So 4 More','Outro: 그게 말이 돼?'] },
+  { name:'The Most Beautiful Moment in Life Pt.1', year:2015, link:'https://open.spotify.com/album/0mEeCuKJQ8Xh9tQ5dMm89X', cover:'cover-hyyh1.jpg', songs:['Intro: The Most Beautiful Moment in Life','I Need U','Hold Me Tight','Skit: Expectation!','Dope','Butterfly','Run','Ma City','Silver Spoon','Outro: Love Is Not Over'] },
+  { name:'The Most Beautiful Moment in Life Pt.2', year:2015, link:'https://open.spotify.com/album/2ds8iT4wkaN1Q1gZe1qcOD', cover:'cover-hyyh2.jpg', songs:['Intro: Never Mind','Run','Butterfly','Whalien 52','Ma City','Silver Spoon','Skit: One Night in a Strange City','Autumn Leaves','Outro: House of Cards'] },
+  { name:'Young Forever', year:2016, link:'https://open.spotify.com/album/1k5bJ8l5oL5xxVBVHjil09', cover:'cover-young.jpg', songs:['Intro: The Most Beautiful Moment in Life','I Need U','Hold Me Tight','Autumn Leaves','Butterfly (Prologue Mix)','Run','Ma City','Silver Spoon','Dope','Fire','Save Me','Epilogue: Young Forever'] },
+  { name:'Wings', year:2016, link:'https://open.spotify.com/album/4HmVBjp09qwqEFSg20EEla', cover:'cover-wings.jpg', songs:['Intro: Boy Meets Evil','Blood Sweat & Tears','Begin','Lie','Stigma','First Love','Reflection','MAMA','Awake','Lost','BTS Cypher Pt.4','Am I Wrong','21st Century Girl','Two! Three!','Interlude: Wings'] },
+  { name:'You Never Walk Alone', year:2017, link:'https://open.spotify.com/album/6THpewjqJ15ORBJkh5CEYb', cover:'cover-ynwa.jpg', songs:['Spring Day','Not Today','Outro: Wings','A Supplementary Story: You Never Walk Alone'] },
+  { name:'Love Yourself: Her', year:2017, link:'https://open.spotify.com/album/2lATw9ZAVp7ILQcOKPCPqp', cover:'cover-her.jpg', songs:['Intro: Serendipity','DNA','Best of Me','Dimple','Pied Piper','Skit: Billboard Music Awards Speech','MIC Drop','Go Go','Outro: Her'] },
+  { name:'Love Yourself: Tear', year:2018, link:'https://open.spotify.com/album/2lATw9ZAVp7ILQcOKPCPqp', cover:'cover-tear.jpg', songs:['Intro: Singularity','Fake Love','The Truth Untold','134340','Paradise','Love Maze','Magic Shop','Airplane Pt.2','Anpanman','So What','Outro: Tear'] },
+  { name:'Love Yourself: Answer', year:2018, link:'https://open.spotify.com/album/43wFM1HquliY3iwKWzPN4y', cover:'cover-answer.jpg', songs:['Euphoria','Trivia 起: Just Dance','Serendipity (Full Length)','DNA','Dimple','Trivia 承: Love','Her','Singularity','Fake Love','The Truth Untold','Trivia 轉: Seesaw','Tear','Epiphany','I\'m Fine','IDOL','Answer: Love Myself','MIC Drop (Steve Aoki Remix)','Fake Love (Rocking Vibe Mix)'] },
+  { name:'Map of the Soul: Persona', year:2019, link:'https://open.spotify.com/album/6mJZTV8lCqnwftYZa94bXS', cover:'cover-persona.jpg', songs:['Intro: Persona','Boy With Luv','Mikrokosmos','Make It Right','HOME','Jamais Vu','Dionysus'] },
+  { name:'Map of the Soul: 7', year:2020, link:'https://open.spotify.com/album/6mJZTV8lCqnwftYZa94bXS', cover:'cover-7.jpg', songs:['Intro: Persona','Boy With Luv','Make It Right','Jamais Vu','Dionysus','Interlude: Shadow','Black Swan','Filter','My Time','Louder Than Bombs','ON','UGH!','00:00 (Zero O\'Clock)','Inner Child','Friends','Moon','Respect','We Are Bulletproof: The Eternal','Outro: Ego','ON (feat. Sia)'] },
+  { name:'BE', year:2020, link:'https://open.spotify.com/album/6nYfHQnvkvOTNHnOhDT3sr', cover:'cover-be.jpg', songs:['Life Goes On','Fly to My Room','Blue & Grey','Skit','Telepathy','Dis-ease','Stay','Dynamite','Life Goes On (Acoustic)'] },
+  { name:'Proof', year:2022, link:'https://open.spotify.com/album/6al2VdKbb6FIz9d7lU7WRB', cover:'cover-proof.jpg', songs:['Born Singer','No More Dream','N.O','Boy in Luv','Danger','I Need U','Run','Fire','Blood Sweat & Tears','Spring Day','DNA','MIC Drop','Fake Love','IDOL','Boy With Luv','ON','Dynamite','Life Goes On','Butter','Yet to Come','Run BTS','For Youth'] },
+  { name:'ARIRANG', year:2026, link:'https://open.spotify.com/album/3ukkRHDHbN8tNRPKsGZR1h', cover:'cover-arirang.jpg', songs:['Body to Body','Hooligan','Aliens','FYA','2.0','No. 29','SWIM','Merry Go Round','NORMAL','Like Animals','they don\'t know \'bout us','One More Night','Please','Into the Sun'] }
+];
+
+let allSongs = [];
+albums.forEach(a => a.songs.forEach(s => allSongs.push({song:s, album:a.name, year:a.year, link:a.link, cover:a.cover})));
+let remaining = [...allSongs];
+
+function newSong(){
+  if(remaining.length === 0) remaining = [...allSongs];
+  const idx = Math.floor(Math.random()*remaining.length);
+  const pick = remaining.splice(idx,1)[0];
+  document.getElementById('songName').textContent = pick.song;
+  document.getElementById('songAlbum').textContent = pick.album + ' (' + pick.year + ')';
+  const cover = document.getElementById('songCover');
+  cover.src = pick.cover;
+  cover.style.display = 'block';
+  const link = document.getElementById('songLink');
+  link.href = pick.link;
+  link.style.display = 'inline-block';
+}
+
+/* MIEMBROS Y SOLOS */
+const members = [
+  { name:'RM', img:'rm.jpg', solos:[
+    { album:'Indigo', link:'https://open.spotify.com/album/2wGinO7YWLHN2sULIr4a7v', songs:['Yun','Still Life (with Anderson .Paak)','All Day','Forg_tful','Closer','Change pt.2','Lonely','Hectic','Wild Flower','No.2'] }
+  ]},
+  { name:'Jin', img:'jin.jpg', solos:[
+    { album:'The Astronaut', link:'https://open.spotify.com/album/6nT2VfGN07ar1vdZyJY6ox', songs:['The Astronaut'] },
+    { album:'Happy', link:'https://open.spotify.com/album/0fKlaQuBMQYFo5aIFoGIXt', songs:['Running Wild','I\'ll Be There','Another Level','Falling','Heart on the Window','I will come to you'] }
+  ]},
+  { name:'SUGA', img:'suga.jpg', solos:[
+    { album:'D-DAY', link:'https://open.spotify.com/album/446ROKmKfpEwkbi2SjELVX', songs:['D-Day','Haegeum','SDL','People Pt.2','Polar Night','Interlude: Dawn','Snooze','Life Goes On','Huh?!','Amygdala','Dear My Friend'] }
+  ]},
+  { name:'j-hope', img:'jhope.jpg', solos:[
+    { album:'Jack in the Box', link:'https://open.spotify.com/album/0FrC9lzgVhziJenigsrXdl', songs:['Intro','Pandora\'s Box','More','STOP','= (Equal Sign)','Music Box: Reflection','What if...','Safety Zone','Future','Arson'] }
+  ]},
+  { name:'Jimin', img:'jimin.jpg', solos:[
+    { album:'Face', link:'https://open.spotify.com/album/4xc3Lc9yASZgEJGH7acWMB', songs:['Face-off','Interlude: Dive','Like Crazy','Alone','Set Me Free Pt.2','Like Crazy (English Version)'] }
+  ]},
+  { name:'V', img:'v.jpg', solos:[
+    { album:'Layover', link:'https://open.spotify.com/album/7ixOAT89NSsgUITYc5ByB5', songs:['Rainy Days','Blue','Love Me Again','Slow Dancing','For Us','Slow Dancing (Piano Ver.)'] }
+  ]},
+  { name:'Jung Kook', img:'jungkook.jpg', solos:[
+    { album:'Golden', link:'https://open.spotify.com/album/5pSk3c3wVwnb2arb6ohCPU', songs:['3D (feat. Jack Harlow)','Closer to You','Seven (feat. Latto)','Standing Next to You','Yes or No','Please Don\'t Change','Hate You','Somebody','Too Sad to Dance','Shot Glass of Tears'] }
+  ]}
+];
+
+const grid = document.getElementById('membersGrid');
+members.forEach(m => {
+  const card = document.createElement('div');
+  card.className = 'member-card';
+  card.innerHTML = `<img src="${m.img}" alt="${m.name}"><p>${m.name}</p>`;
+  card.onclick = () => openMember(m);
+  grid.appendChild(card);
+});
+
+function openMember(m){
+  const panel = document.getElementById('memberPanel');
+  let html = `<h3>${m.name}</h3>`;
+  m.solos.forEach(s => {
+    html += `<div class="solo-album"><h4>${s.album}</h4><ul>`;
+    s.songs.forEach(song => html += `<li>${song}</li>`);
+    html += `</ul><a href="${s.link}" target="_blank">LISTEN ON SPOTIFY</a></div>`;
+  });
+  panel.innerHTML = html;
+  panel.classList.add('active');
+  panel.scrollIntoView({behavior:'smooth'});
+}
+
+/* ENTER */
+function enterSite(){
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  newSong();
+  window.scrollTo({top:0});
+}
+document.getElementById('main').style.display = 'none';
+</script>
+</body>
+</html>
